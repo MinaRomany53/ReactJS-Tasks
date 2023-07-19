@@ -1,5 +1,3 @@
-![screencapture-eat-n-splitapp-netlify-app-2023-07-19-08_13_29](https://github.com/MinaRomany53/ReactJS-Tasks/assets/84532337/c72f06b8-e349-49d8-a837-bfa5c7bd0e10)# ReactJS Tasks | For Practicing 😁
-
 [![Reactjs](https://img.shields.io/badge/Reactjs-18.16.0-blue.svg)](https://github.com/facebook/react)
 
 ## Travel-List
