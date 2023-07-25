@@ -20,8 +20,7 @@ const initialFriends = [
   {
     id: 499476,
     name: "Mina",
-    image:
-      "https://scontent.fcai19-7.fna.fbcdn.net/v/t39.30808-6/329940539_896993688284990_471916368410958125_n.jpg?_nc_cat=100&cb=99be929b-59f725be&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=k0c_iPQYeHgAX-papCv&_nc_ht=scontent.fcai19-7.fna&oh=00_AfDZK4uD3JP6neRr4tmW8Otfx-QtYq1s2Oh1x7QQFS-ddw&oe=64BB1F80",
+    image: "https://i.pravatar.cc/48?u=56687",
     balance: 0,
   },
 ];
