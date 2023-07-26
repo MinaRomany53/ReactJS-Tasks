@@ -103,18 +103,13 @@ export default function App() {
         `https://www.omdbapi.com/?i=${id}&apikey=${myApiKey}`
       );
       const data = await res.json();
-      console.log("data", data);
 
       if (data.Response === "False") {
         throw new Error("No Results Found");
       }
 
-      // console.log(data);
-
       setSelectedMovie(data);
-    } catch (err) {
-      // console.log(err);
-    }
+    } catch (err) {}
   };
 
   return (
@@ -139,9 +134,17 @@ export default function App() {
             <MovieDetails
               movieData={selectedMovie}
               onCloseDetails={() => setSelectedMovie("")}
+              setWatchedMovies={(movieData) =>
+                setWatchedMovies([...watchedMovies, movieData])
+              }
+              updateWatchedMovies={setWatchedMovies}
+              watchedMovies={watchedMovies}
             />
           ) : (
-            <WatchedMoviesList watchedMovies={watchedMovies} />
+            <WatchedMoviesList
+              watchedMovies={watchedMovies}
+              updateWatchedMovies={setWatchedMovies}
+            />
           )}
         </Box>
       </Main>
@@ -237,13 +240,18 @@ function Movie({ movie, onSelectedMovie }) {
   );
 }
 
-function WatchedMoviesList({ watchedMovies }) {
+function WatchedMoviesList({ watchedMovies, updateWatchedMovies }) {
   return (
     <>
       <WatchedSummary watchedMovies={watchedMovies} />
       <ul className="list">
         {watchedMovies.map((movie) => (
-          <WatchedMovie movie={movie} key={movie.imdbID} />
+          <WatchedMovie
+            movie={movie}
+            key={movie.imdbID}
+            watchedMovies={watchedMovies}
+            updateWatchedMovies={updateWatchedMovies}
+          />
         ))}
       </ul>
     </>
@@ -252,9 +260,15 @@ function WatchedMoviesList({ watchedMovies }) {
 
 function WatchedSummary({ watchedMovies }) {
   // Calculate the average rating of the movies
-  const avgImdbRating = average(watchedMovies.map((movie) => movie.imdbRating));
-  const avgUserRating = average(watchedMovies.map((movie) => movie.userRating));
-  const avgRuntime = average(watchedMovies.map((movie) => movie.runtime));
+  const avgImdbRating = Number(
+    average(watchedMovies.map((movie) => movie.imdbRating))
+  ).toFixed(1);
+  const avgUserRating = Number(
+    average(watchedMovies.map((movie) => movie.userRating))
+  ).toFixed(1);
+  const avgRuntime = Number(
+    average(watchedMovies.map((movie) => movie.Runtime))
+  ).toFixed(0);
 
   return (
     <div className="summary">
@@ -281,7 +295,14 @@ function WatchedSummary({ watchedMovies }) {
   );
 }
 
-function WatchedMovie({ movie }) {
+function WatchedMovie({ movie, watchedMovies, updateWatchedMovies }) {
+  const handleRemoveFromWatched = () => {
+    const newWatchedMovies = watchedMovies.filter(
+      (m) => m.imdbID !== movie.imdbID
+    );
+    updateWatchedMovies(newWatchedMovies);
+  };
+
   return (
     <li>
       <img src={movie.Poster} alt={`${movie.Title}-poster`} />
@@ -297,14 +318,62 @@ function WatchedMovie({ movie }) {
         </p>
         <p>
           <span>⏳</span>
-          <span>{movie.runtime} min</span>
+          <span>{movie.Runtime}</span>
         </p>
       </div>
+      <button className="btn-delete" onClick={handleRemoveFromWatched}>
+        x
+      </button>
     </li>
   );
 }
 
-function MovieDetails({ movieData, onCloseDetails }) {
+function MovieDetails({
+  movieData,
+  onCloseDetails,
+  setWatchedMovies,
+  watchedMovies,
+  updateWatchedMovies,
+}) {
+  const [userRating, setUserRating] = useState("");
+
+  // Check if the movie is already in the watched list
+  const isAdded = watchedMovies.some((movie) => {
+    return movieData.imdbID === movie.imdbID;
+  });
+
+  const handleAddToWatched = () => {
+    const newWatchedMovie = {
+      imdbID: movieData.imdbID,
+      Title: movieData.Title,
+      Year: movieData.Year,
+      Poster: movieData.Poster,
+      Runtime: Number(movieData.Runtime.replace(" min", "")),
+      imdbRating: Number(movieData.imdbRating),
+      userRating: userRating,
+    };
+    setWatchedMovies(newWatchedMovie);
+    onCloseDetails();
+  };
+
+  const handleRemoveFromWatched = () => {
+    const newWatchedMovies = watchedMovies.filter(
+      (movie) => movie.imdbID !== movieData.imdbID
+    );
+    updateWatchedMovies(newWatchedMovies);
+    onCloseDetails();
+  };
+
+  // Display Movie Name on the Page Title at the Browser Tab
+  useEffect(() => {
+    document.title = `${movieData.Title} ${
+      userRating && `( Rated ${userRating} 🌟)`
+    }`;
+    return () => {
+      document.title = "Popcorn App"; // Clenup function to reset the page title to the default
+    };
+  }, [movieData, userRating]);
+
   return (
     <div className="details">
       <button className="btn-back" onClick={onCloseDetails}>
@@ -327,9 +396,27 @@ function MovieDetails({ movieData, onCloseDetails }) {
         </div>
       </header>
       <section>
-        <div className="rating">
-          <StarRating maxRating={10} currentRating={5} color={"#fcc419"} />
-        </div>
+        {isAdded ? (
+          <div className="rating">
+            <button className="btn-remove" onClick={handleRemoveFromWatched}>
+              Remove From List
+            </button>
+          </div>
+        ) : (
+          <div className="rating">
+            <StarRating
+              maxRating={10}
+              color={"#fcc419"}
+              onChangeRating={setUserRating}
+            />
+            {userRating > 0 && (
+              <button className="btn-add" onClick={handleAddToWatched}>
+                + Add To List
+              </button>
+            )}
+          </div>
+        )}
+
         <p>
           <em>{movieData.Plot}</em>
         </p>

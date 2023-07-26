@@ -22,12 +22,14 @@ const textStyle = {
   fontSize: "18px",
   fontWeight: "bold",
   color: "#fcc419",
+  lineHeight: "1",
 };
 
 export default function StarRating({
-  currentRating = 1,
+  currentRating = "",
   maxRating = 5,
   color = "#fcc419",
+  onChangeRating,
 }) {
   const [rating, setRating] = useState(currentRating);
   const [tempRating, setTempRating] = useState(0);
@@ -40,7 +42,10 @@ export default function StarRating({
             key={i}
             style={starStyle}
             full={tempRating ? i + 1 <= tempRating : i + 1 <= rating}
-            onClick={() => setRating(i + 1)}
+            onClick={() => {
+              setRating(i + 1);
+              onChangeRating(i + 1);
+            }}
             onHoverIn={() => setTempRating(i + 1)}
             onHoverOut={() => setTempRating(0)}
             color={color}
