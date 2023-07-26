@@ -55,6 +55,7 @@ function App() {
           friends={friends}
           selectedFriend={selectedFriend}
           onUpdatedFriends={setFriends}
+          key={selectedFriend.id}
         />
       )}
     </div>
