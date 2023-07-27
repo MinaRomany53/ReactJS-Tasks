@@ -326,6 +326,10 @@ body {
   flex-direction: column;
   gap: 2.4rem;
 }
+.rating span {
+  text-align: center;
+  font-size: 1.6rem;
+}
 
 .btn-add {
   background-color: var(--color-primary);

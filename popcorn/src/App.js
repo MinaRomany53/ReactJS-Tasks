@@ -1,56 +1,9 @@
 import { useState, useEffect } from "react";
-import StarRating from "./components/StarRating";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faCalendar } from "@fortawesome/free-solid-svg-icons";
+import StarRating from "./components/StarRating";
 library.add(faCalendar);
-
-// const tempMovieData = [
-//   {
-//     imdbID: "tt1375666",
-//     Title: "Inception",
-//     Year: "2010",
-//     Poster:
-//       "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-//   },
-//   {
-//     imdbID: "tt0133093",
-//     Title: "The Matrix",
-//     Year: "1999",
-//     Poster:
-//       "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
-//   },
-//   {
-//     imdbID: "tt6751668",
-//     Title: "Parasite",
-//     Year: "2019",
-//     Poster:
-//       "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWE0ZDYtZTI3MjcwN2Q5NTVkXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_SX300.jpg",
-//   },
-// ];
-
-// const tempWatchedData = [
-//   {
-//     imdbID: "tt1375666",
-//     Title: "Inception",
-//     Year: "2010",
-//     Poster:
-//       "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-//     runtime: 148,
-//     imdbRating: 8.8,
-//     userRating: 10,
-//   },
-//   {
-//     imdbID: "tt0088763",
-//     Title: "Back to the Future",
-//     Year: "1985",
-//     Poster:
-//       "https://m.media-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
-//     runtime: 116,
-//     imdbRating: 8.5,
-//     userRating: 9,
-//   },
-// ];
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -66,6 +19,8 @@ export default function App() {
   const [selectedMovie, setSelectedMovie] = useState("");
 
   useEffect(() => {
+    const controller = new AbortController(); // Create a new AbortController instance to abort fetch request (Browser Api)
+
     const fetchMovies = async () => {
       try {
         setIsLoading(true);
@@ -78,7 +33,10 @@ export default function App() {
           return;
         }
         const res = await fetch(
-          `https://www.omdbapi.com/?s=${searchQuery}&apikey=${myApiKey}`
+          `https://www.omdbapi.com/?s=${searchQuery}&apikey=${myApiKey}`,
+          {
+            signal: controller.signal,
+          }
         );
         const data = await res.json();
 
@@ -94,8 +52,43 @@ export default function App() {
         setMovies([]);
       }
     };
+
+    setSelectedMovie("");
     fetchMovies();
+
+    return () => {
+      controller.abort();
+    }; // Cleanup function to abort fetch request when the component unmount
   }, [searchQuery]);
+
+  // Get Watched movies from the local storage at the first render of the App
+  useEffect(() => {
+    const savedWatchedMovies = JSON.parse(
+      localStorage.getItem("watchedMovies")
+    );
+    if (savedWatchedMovies) {
+      setWatchedMovies(savedWatchedMovies);
+    }
+  }, []);
+
+  const handleSetWatchedMovies = (movieData) => {
+    setWatchedMovies([...watchedMovies, movieData]);
+    // Save Watched movies to the local storage
+    localStorage.setItem(
+      "watchedMovies",
+      JSON.stringify([...watchedMovies, movieData])
+    );
+  };
+
+  const handleRemoveFromWatched = (id) => {
+    const newWatchedMovies = watchedMovies.filter((m) => m.imdbID !== id);
+    setWatchedMovies(newWatchedMovies);
+    // Save new Watched movies to the local storage
+    localStorage.setItem(
+      "watchedMovies",
+      JSON.stringify([...newWatchedMovies])
+    );
+  };
 
   const getMovieById = async (id) => {
     try {
@@ -134,16 +127,14 @@ export default function App() {
             <MovieDetails
               movieData={selectedMovie}
               onCloseDetails={() => setSelectedMovie("")}
-              setWatchedMovies={(movieData) =>
-                setWatchedMovies([...watchedMovies, movieData])
-              }
-              updateWatchedMovies={setWatchedMovies}
+              handleSetWatchedMovies={handleSetWatchedMovies}
+              updateWatchedMovies={handleRemoveFromWatched}
               watchedMovies={watchedMovies}
             />
           ) : (
             <WatchedMoviesList
               watchedMovies={watchedMovies}
-              updateWatchedMovies={setWatchedMovies}
+              updateWatchedMovies={handleRemoveFromWatched}
             />
           )}
         </Box>
@@ -249,7 +240,6 @@ function WatchedMoviesList({ watchedMovies, updateWatchedMovies }) {
           <WatchedMovie
             movie={movie}
             key={movie.imdbID}
-            watchedMovies={watchedMovies}
             updateWatchedMovies={updateWatchedMovies}
           />
         ))}
@@ -295,14 +285,7 @@ function WatchedSummary({ watchedMovies }) {
   );
 }
 
-function WatchedMovie({ movie, watchedMovies, updateWatchedMovies }) {
-  const handleRemoveFromWatched = () => {
-    const newWatchedMovies = watchedMovies.filter(
-      (m) => m.imdbID !== movie.imdbID
-    );
-    updateWatchedMovies(newWatchedMovies);
-  };
-
+function WatchedMovie({ movie, updateWatchedMovies }) {
   return (
     <li>
       <img src={movie.Poster} alt={`${movie.Title}-poster`} />
@@ -318,10 +301,13 @@ function WatchedMovie({ movie, watchedMovies, updateWatchedMovies }) {
         </p>
         <p>
           <span>⏳</span>
-          <span>{movie.Runtime}</span>
+          <span>{movie.Runtime} min</span>
         </p>
       </div>
-      <button className="btn-delete" onClick={handleRemoveFromWatched}>
+      <button
+        className="btn-delete"
+        onClick={() => updateWatchedMovies(movie.imdbID)}
+      >
         x
       </button>
     </li>
@@ -331,7 +317,7 @@ function WatchedMovie({ movie, watchedMovies, updateWatchedMovies }) {
 function MovieDetails({
   movieData,
   onCloseDetails,
-  setWatchedMovies,
+  handleSetWatchedMovies,
   watchedMovies,
   updateWatchedMovies,
 }) {
@@ -342,6 +328,12 @@ function MovieDetails({
     return movieData.imdbID === movie.imdbID;
   });
 
+  // get user rating from the watched list
+  const currentMovie = watchedMovies.find((movie) => {
+    return movieData.imdbID === movie.imdbID;
+  });
+
+  // Add the movie to the watched list
   const handleAddToWatched = () => {
     const newWatchedMovie = {
       imdbID: movieData.imdbID,
@@ -352,15 +344,7 @@ function MovieDetails({
       imdbRating: Number(movieData.imdbRating),
       userRating: userRating,
     };
-    setWatchedMovies(newWatchedMovie);
-    onCloseDetails();
-  };
-
-  const handleRemoveFromWatched = () => {
-    const newWatchedMovies = watchedMovies.filter(
-      (movie) => movie.imdbID !== movieData.imdbID
-    );
-    updateWatchedMovies(newWatchedMovies);
+    handleSetWatchedMovies(newWatchedMovie);
     onCloseDetails();
   };
 
@@ -373,6 +357,21 @@ function MovieDetails({
       document.title = "Popcorn App"; // Clenup function to reset the page title to the default
     };
   }, [movieData, userRating]);
+
+  // Handling Escape key press event to close the movie details
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        onCloseDetails();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [onCloseDetails]);
 
   return (
     <div className="details">
@@ -398,7 +397,16 @@ function MovieDetails({
       <section>
         {isAdded ? (
           <div className="rating">
-            <button className="btn-remove" onClick={handleRemoveFromWatched}>
+            <span>
+              You already rated this movie with {currentMovie.userRating} 🌟
+            </span>
+            <button
+              className="btn-remove"
+              onClick={() => {
+                updateWatchedMovies(movieData.imdbID);
+                onCloseDetails();
+              }}
+            >
               Remove From List
             </button>
           </div>
