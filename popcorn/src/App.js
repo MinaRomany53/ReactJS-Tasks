@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faCalendar } from "@fortawesome/free-solid-svg-icons";
@@ -157,6 +157,29 @@ function Logo() {
 }
 
 function SearchInput({ searchQuery, onSearchQuery }) {
+  const inputEl = useRef(null);
+
+  // focus the search input when the component mounts
+  // Handling Enter key press evebt to focus the search input
+  useEffect(() => {
+    inputEl.current.focus();
+
+    const handleEnter = (e) => {
+      if (document.activeElement === inputEl.current) return; // Prevent deleting query when the user is typing in the search input
+
+      if (e.key === "Enter") {
+        inputEl.current.focus();
+        onSearchQuery("");
+      }
+    };
+
+    window.addEventListener("keydown", handleEnter);
+
+    return () => {
+      window.removeEventListener("keydown", handleEnter);
+    };
+  }, [onSearchQuery]);
+
   return (
     <input
       className="search"
@@ -164,6 +187,7 @@ function SearchInput({ searchQuery, onSearchQuery }) {
       placeholder="Search movies..."
       value={searchQuery}
       onChange={(e) => onSearchQuery(e.target.value)}
+      ref={inputEl}
     />
   );
 }
