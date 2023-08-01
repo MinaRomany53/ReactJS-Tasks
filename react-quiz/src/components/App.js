@@ -1,4 +1,5 @@
 import { useEffect, useReducer } from "react";
+import data from "../data/questions";
 import Header from "./Header";
 import Main from "./Main";
 import Loader from "./Loader";
@@ -61,15 +62,12 @@ export default function App() {
   // console.log("points: ", state.points);
 
   useEffect(() => {
-    async function fetchQuestions() {
-      dispatch({ type: "SET_IS_LOADING" });
+    dispatch({ type: "SET_IS_LOADING" });
+    // Simulate fetching data from an API 😁
+    function fetchQuestions() {
       try {
-        const response = await fetch("http://localhost:9000/questions");
-        const data = await response.json();
-        // console.log("data: ", data);
-
         dispatch({ type: "SET_QUESTIONS", payload: data });
-      } catch (err) {
+      } catch (error) {
         dispatch({ type: "SET_IS_ERROR" });
       }
     }
