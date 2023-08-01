@@ -1,48 +1,36 @@
 import { useEffect, useReducer } from "react";
+
 import data from "../data/questions";
+
 import Header from "./Header";
 import Main from "./Main";
-import Loader from "./Loader";
-import Error from "./Error";
 import StartScreen from "./StartScreen";
 import Question from "./Question";
 import Footer from "./Footer";
+import ProgressBar from "./ProgressBar";
+import ResultScreen from "./ResultScreen";
 
 const initialState = {
   isStarted: false,
   questions: [],
-  isLoading: true,
-  isError: false,
   currentQuestion: 0,
   selectedAnswer: null,
   points: 0,
+  isFinished: false,
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case "SET_IS_LOADING":
-      return { ...state, isLoading: true, isError: false };
     case "SET_QUESTIONS":
-      return { ...state, questions: action.payload, isLoading: false };
-    case "SET_IS_ERROR":
-      return { ...state, isError: true, isLoading: false };
+      return { ...state, questions: action.payload };
     case "SET_IS_STARTED":
       return { ...state, isStarted: true };
     case "SET_CURRENT_QUESTION":
-      if (state.currentQuestion === state.questions.length - 1) {
-        return {
-          ...state,
-          isStarted: false,
-          currentQuestion: 0,
-          selectedAnswer: null,
-        };
-      } else {
-        return {
-          ...state,
-          currentQuestion: state.currentQuestion + 1,
-          selectedAnswer: null,
-        };
-      }
+      return {
+        ...state,
+        currentQuestion: state.currentQuestion + 1,
+        selectedAnswer: null,
+      };
     case "SET_SELECTED_ANSWER":
       const points =
         action.payload === state.questions[state.currentQuestion].correctOption
@@ -50,7 +38,16 @@ const reducer = (state, action) => {
           : state.points;
 
       return { ...state, selectedAnswer: action.payload, points: points };
-
+    case "SET_IS_FINISHED":
+      return {
+        ...state,
+        isFinished: true,
+        isStarted: false,
+        currentQuestion: 0,
+        selectedAnswer: null,
+      };
+    case "RESTART_QUIZ":
+      return { ...initialState, questions: state.questions };
     default:
       return new Error("No matching action type");
   }
@@ -58,18 +55,14 @@ const reducer = (state, action) => {
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const noQuestions = state.questions.length;
-  // console.log("points: ", state.points);
 
+  const noQuestions = state.questions.length;
+  const maxPoints = state.questions.reduce((acc, curr) => acc + curr.points, 0);
+
+  // Simulate fetching data from an API 😁
   useEffect(() => {
-    dispatch({ type: "SET_IS_LOADING" });
-    // Simulate fetching data from an API 😁
     function fetchQuestions() {
-      try {
-        dispatch({ type: "SET_QUESTIONS", payload: data });
-      } catch (error) {
-        dispatch({ type: "SET_IS_ERROR" });
-      }
+      dispatch({ type: "SET_QUESTIONS", payload: data });
     }
     fetchQuestions();
   }, []);
@@ -78,21 +71,36 @@ export default function App() {
     <div className="app">
       <Header />
       <Main>
-        {state.isLoading ? (
-          <Loader />
-        ) : state.isError ? (
-          <Error />
-        ) : !state.isStarted ? (
+        {!state.isStarted && !state.isFinished && (
           <StartScreen noQuestions={noQuestions} dispatch={dispatch} />
-        ) : (
+        )}
+        {state.isStarted && (
           <>
+            <ProgressBar
+              noQuestions={noQuestions}
+              maxPoints={maxPoints}
+              currPoints={state.points}
+              currentQuestion={state.currentQuestion}
+            />
             <Question
               question={state.questions[state.currentQuestion]}
               selectedAnswer={state.selectedAnswer}
               dispatch={dispatch}
             />
-            <Footer selectedAnswer={state.selectedAnswer} dispatch={dispatch} />
+            <Footer
+              selectedAnswer={state.selectedAnswer}
+              noQuestions={noQuestions}
+              currentQuestion={state.currentQuestion}
+              dispatch={dispatch}
+            />
           </>
+        )}
+        {state.isFinished && (
+          <ResultScreen
+            points={state.points}
+            maxPoints={maxPoints}
+            dispatch={dispatch}
+          />
         )}
       </Main>
     </div>
