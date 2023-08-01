@@ -20,6 +20,12 @@ https://popcornapp.netlify.app/
 
 ![screencapture-popcornapp-netlify-app-2023-07-26-03_30_57](https://github.com/MinaRomany53/ReactJS-Tasks/assets/84532337/ef9d1cdf-08ab-4b34-8aa6-c734b13d9b1f)
 
+## React Quiz | Implement it using (useReducer Hook)
+
+https://reactquizx.netlify.app/
+
+![screencapture-popcornapp-netlify-app-2023-07-26-03_30_57](https://github.com/MinaRomany53/ReactJS-Tasks/assets/84532337/ef9d1cdf-08ab-4b34-8aa6-c734b13d9b1f)
+
 ## Maintain and deploy by
 
 - [**Mina Romany**](https://github.com/MinaRomany53)
