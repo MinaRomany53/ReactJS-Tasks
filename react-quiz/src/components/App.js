@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import Header from "./Header";
 import Main from "./Main";
 import Loader from "./Loader";
@@ -7,77 +7,93 @@ import StartScreen from "./StartScreen";
 import Question from "./Question";
 import Footer from "./Footer";
 
+const initialState = {
+  isStarted: false,
+  questions: [],
+  isLoading: true,
+  isError: false,
+  currentQuestion: 0,
+  selectedAnswer: null,
+  points: 0,
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "SET_IS_LOADING":
+      return { ...state, isLoading: true, isError: false };
+    case "SET_QUESTIONS":
+      return { ...state, questions: action.payload, isLoading: false };
+    case "SET_IS_ERROR":
+      return { ...state, isError: true, isLoading: false };
+    case "SET_IS_STARTED":
+      return { ...state, isStarted: true };
+    case "SET_CURRENT_QUESTION":
+      if (state.currentQuestion === state.questions.length - 1) {
+        return {
+          ...state,
+          isStarted: false,
+          currentQuestion: 0,
+          selectedAnswer: null,
+        };
+      } else {
+        return {
+          ...state,
+          currentQuestion: state.currentQuestion + 1,
+          selectedAnswer: null,
+        };
+      }
+    case "SET_SELECTED_ANSWER":
+      const points =
+        action.payload === state.questions[state.currentQuestion].correctOption
+          ? state.points + state.questions[state.currentQuestion].points
+          : state.points;
+
+      return { ...state, selectedAnswer: action.payload, points: points };
+
+    default:
+      return new Error("No matching action type");
+  }
+};
+
 export default function App() {
-  const [isStarted, setIsStarted] = useState(false);
-  const [questions, setQuestions] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const noQuestions = questions.length;
-
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-
-  const [points, setPoints] = useState(0);
-  console.log("points: ", points);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const noQuestions = state.questions.length;
+  // console.log("points: ", state.points);
 
   useEffect(() => {
     async function fetchQuestions() {
-      setIsLoading(true);
-      setIsError(false);
+      dispatch({ type: "SET_IS_LOADING" });
       try {
         const response = await fetch("http://localhost:9000/questions");
         const data = await response.json();
         // console.log("data: ", data);
 
-        setQuestions(data);
-        setIsLoading(false);
+        dispatch({ type: "SET_QUESTIONS", payload: data });
       } catch (err) {
-        setIsLoading(false);
-        setIsError(true);
+        dispatch({ type: "SET_IS_ERROR" });
       }
     }
     fetchQuestions();
   }, []);
 
-  function handlingNext() {
-    if (currentQuestion === noQuestions - 1) {
-      setIsStarted(false);
-      setCurrentQuestion(0);
-      setSelectedAnswer(null);
-      return;
-    }
-    setCurrentQuestion(currentQuestion + 1);
-    setSelectedAnswer(null);
-  }
-
-  function handlingAnswer(answerIndex) {
-    setSelectedAnswer(answerIndex);
-    if (answerIndex === questions[currentQuestion].correctOption) {
-      setPoints(points + questions[currentQuestion].points);
-    }
-  }
-
   return (
     <div className="app">
       <Header />
       <Main>
-        {isLoading ? (
+        {state.isLoading ? (
           <Loader />
-        ) : isError ? (
+        ) : state.isError ? (
           <Error />
-        ) : !isStarted ? (
-          <StartScreen
-            setIsStarted={() => setIsStarted(!isStarted)}
-            noQuestions={noQuestions}
-          />
+        ) : !state.isStarted ? (
+          <StartScreen noQuestions={noQuestions} dispatch={dispatch} />
         ) : (
           <>
             <Question
-              question={questions[currentQuestion]}
-              setSelectedAnswer={(i) => handlingAnswer(i)}
-              selectedAnswer={selectedAnswer}
+              question={state.questions[state.currentQuestion]}
+              selectedAnswer={state.selectedAnswer}
+              dispatch={dispatch}
             />
-            <Footer selectedAnswer={selectedAnswer} onNext={handlingNext} />
+            <Footer selectedAnswer={state.selectedAnswer} dispatch={dispatch} />
           </>
         )}
       </Main>

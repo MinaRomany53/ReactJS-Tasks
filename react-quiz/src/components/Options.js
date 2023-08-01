@@ -1,8 +1,4 @@
-export default function Options({
-  question,
-  selectedAnswer,
-  setSelectedAnswer,
-}) {
+export default function Options({ question, selectedAnswer, dispatch }) {
   return (
     <div className="options">
       {selectedAnswer === null &&
@@ -11,7 +7,9 @@ export default function Options({
             <button
               className="btn btn-option"
               key={i}
-              onClick={() => setSelectedAnswer(i)}
+              onClick={() =>
+                dispatch({ type: "SET_SELECTED_ANSWER", payload: i })
+              }
             >
               {option}
             </button>
