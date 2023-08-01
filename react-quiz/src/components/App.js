@@ -17,6 +17,7 @@ const initialState = {
   selectedAnswer: null,
   points: 0,
   isFinished: false,
+  timeLeft: 5 * 60,
 };
 
 const reducer = (state, action) => {
@@ -48,6 +49,17 @@ const reducer = (state, action) => {
       };
     case "RESTART_QUIZ":
       return { ...initialState, questions: state.questions };
+    case "SET_TIME_LEFT":
+      if (state.timeLeft === 0) {
+        return {
+          ...state,
+          isFinished: true,
+          isStarted: false,
+          currentQuestion: 0,
+          selectedAnswer: null,
+        };
+      }
+      return { ...state, timeLeft: state.timeLeft - 1 };
     default:
       return new Error("No matching action type");
   }
@@ -91,6 +103,7 @@ export default function App() {
               selectedAnswer={state.selectedAnswer}
               noQuestions={noQuestions}
               currentQuestion={state.currentQuestion}
+              timeLeft={state.timeLeft}
               dispatch={dispatch}
             />
           </>

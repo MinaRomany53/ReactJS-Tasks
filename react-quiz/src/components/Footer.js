@@ -1,12 +1,15 @@
+import Timer from "./Timer";
+
 export default function Footer({
   selectedAnswer,
   noQuestions,
   currentQuestion,
+  timeLeft,
   dispatch,
 }) {
   return (
     <footer>
-      <div className="timer">5:03</div>
+      <Timer timeLeft={timeLeft} dispatch={dispatch} />
       {selectedAnswer !== null && currentQuestion + 1 === noQuestions ? (
         <button
           className="btn btn-ui"
