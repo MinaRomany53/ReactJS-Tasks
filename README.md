@@ -26,9 +26,9 @@ https://reactquizx.netlify.app/
 
 ![screencapture-localhost-3000-2023-08-01-15_50_48](https://github.com/MinaRomany53/ReactJS-Tasks/assets/84532337/194fb8ee-96e0-4400-bc50-740b05b3513b)
 
-## xxxxxx | Implement it using (Vite - React Router - )
+## Travelogue Tracker | Implement it using (Vite - React Router - )
 
-https://xxxxxx.netlify.app/
+https://travelogue-tracker.netlify.app/
 
 ## Maintain and deploy by
 
