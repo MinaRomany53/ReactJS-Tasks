@@ -1,0 +1,27 @@
+.logo {
+  height: 6rem;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--color-light--2);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.logo img {
+  height: 6rem;
+}
+
+.logo .logoText {
+  font-size: 3rem;
+  margin-left: 1rem;
+  letter-spacing: 1.5px;
+}
+@media (max-width: 786px) {
+  .logo img {
+    height: 4rem;
+  }
+  .logo .logoText {
+    font-size: 2rem;
+  }
+}
