@@ -52,10 +52,12 @@
   }
 
   .pricing h2 {
+    font-size: 3rem;
     text-align: center;
   }
 
   .pricing p {
+    font-size: 1.4rem;
     padding: 0 4rem;
     text-align: center;
   }

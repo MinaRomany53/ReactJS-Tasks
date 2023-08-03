@@ -62,4 +62,10 @@
   .product .image {
     width: 20rem;
   }
+  .product h2 {
+    font-size: 3rem;
+  }
+  .product p {
+    font-size: 1.4rem;
+  }
 }
