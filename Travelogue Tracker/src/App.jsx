@@ -1,4 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+import citiesData from "./data/cities.js";
 
 import Homepage from "./pages/Homepage";
 import Product from "./pages/Product";
@@ -7,7 +10,23 @@ import Login from "./pages/Login";
 import AppLayout from "./pages/AppLayout";
 import PageNotFound from "./pages/PageNotFound";
 
+import CityList from "./components/CityList";
+import CountryList from "./components/CountryList";
+import City from "./components/City";
+
 function App() {
+  const [cities, setCities] = useState([]);
+
+  // Simulate fetching data from an API 😁
+  useEffect(() => {
+    function fetchQuestions() {
+      setCities(citiesData);
+    }
+    fetchQuestions();
+  }, []);
+
+  console.log(cities);
+
   return (
     <Router>
       <Routes>
@@ -16,9 +35,10 @@ function App() {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/app" element={<AppLayout />}>
-          <Route index element={<div>Cities List Component 😎</div>} />
-          <Route path="cities" element={<div>Cities List Component 😎</div>} />
-          <Route path="country" element={<div>Country List Component</div>} />
+          <Route index element={<CityList cities={cities} />} />
+          <Route path="cities" element={<CityList cities={cities} />} />
+          <Route path="cities/:cityId" element={<City />} />
+          <Route path="country" element={<CountryList cities={cities} />} />
           <Route path="form" element={<div>Form Component 🤨</div>} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
