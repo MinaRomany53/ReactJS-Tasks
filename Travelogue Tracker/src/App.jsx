@@ -13,6 +13,7 @@ import PageNotFound from "./pages/PageNotFound";
 import CityList from "./components/CityList";
 import CountryList from "./components/CountryList";
 import City from "./components/City";
+import Form from "./components/Form";
 
 function App() {
   const [cities, setCities] = useState([]);
@@ -39,7 +40,7 @@ function App() {
           <Route path="cities" element={<CityList cities={cities} />} />
           <Route path="cities/:cityId" element={<City />} />
           <Route path="country" element={<CountryList cities={cities} />} />
-          <Route path="form" element={<div>Form Component 🤨</div>} />
+          <Route path="form" element={<Form />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>
