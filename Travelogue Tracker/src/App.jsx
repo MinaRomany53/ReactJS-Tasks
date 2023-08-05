@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import citiesData from "./data/cities.js";
@@ -31,12 +36,12 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Homepage />} />
+        <Route index element={<Homepage />} />
         <Route path="/product" element={<Product />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/app" element={<AppLayout />}>
-          <Route index element={<CityList cities={cities} />} />
+          <Route index element={<Navigate replace to="cities" />} />
           <Route path="cities" element={<CityList cities={cities} />} />
           <Route path="cities/:cityId" element={<City />} />
           <Route path="country" element={<CountryList cities={cities} />} />
