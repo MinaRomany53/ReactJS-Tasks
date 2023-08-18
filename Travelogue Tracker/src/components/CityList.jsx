@@ -3,7 +3,11 @@ import styles from "./CityList.module.css";
 import CityItem from "./CityItem";
 import Message from "./Message";
 
-export default function CityList({ cities }) {
+import { useCities } from "../contexts/CitiesContext";
+
+export default function CityList() {
+  const cities = useCities();
+
   if (cities.length === 0) {
     return (
       <Message message="Hello, Add your first city by clicking on a city on the map" />

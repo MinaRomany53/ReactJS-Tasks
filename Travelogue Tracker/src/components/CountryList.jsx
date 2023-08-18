@@ -3,7 +3,11 @@ import styles from "./CountryList.module.css";
 import CountryItem from "./CountryItem";
 import Message from "./Message";
 
-export default function CountryList({ cities }) {
+import { useCities } from "../contexts/CitiesContext";
+
+export default function CountryList() {
+  const cities = useCities();
+
   const countries = [
     ...new Set(
       cities.map((city) => {
