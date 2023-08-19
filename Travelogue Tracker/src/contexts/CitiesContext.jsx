@@ -6,7 +6,7 @@ const CitiesContext = createContext();
 function CitiesProvider({ children }) {
   const [cities, setCities] = useState([]);
 
-  // Simulate fetching data from an API 😁
+  // Simulate fetching data from an API 😁  -  Get All The Cities Data
   useEffect(() => {
     function fetchQuestions() {
       setCities(citiesData);

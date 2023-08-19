@@ -49,7 +49,7 @@ function Form() {
       </div>
 
       <div className={styles.buttons}>
-        <btn>Add</btn>
+        <button>Add</button>
         <BackButton type="back">&larr; Back</BackButton>
       </div>
     </form>
