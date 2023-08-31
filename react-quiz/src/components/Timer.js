@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 
-export default function Timer({ timeLeft, dispatch }) {
+import { useQuizContext } from "../contexts/QuizContext";
+
+export default function Timer() {
+  const { timeLeft, dispatch } = useQuizContext();
   useEffect(() => {
     const interval = setInterval(() => {
       dispatch({ type: "SET_TIME_LEFT" });

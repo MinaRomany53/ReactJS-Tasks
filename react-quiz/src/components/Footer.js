@@ -1,15 +1,13 @@
 import Timer from "./Timer";
 
-export default function Footer({
-  selectedAnswer,
-  noQuestions,
-  currentQuestion,
-  timeLeft,
-  dispatch,
-}) {
+import { useQuizContext } from "../contexts/QuizContext";
+
+export default function Footer() {
+  const { selectedAnswer, noQuestions, currentQuestion, dispatch } =
+    useQuizContext();
   return (
     <footer>
-      <Timer timeLeft={timeLeft} dispatch={dispatch} />
+      <Timer />
       {selectedAnswer !== null && currentQuestion + 1 === noQuestions ? (
         <button
           className="btn btn-ui"

@@ -1,9 +1,12 @@
-export default function ProgressBar({
-  noQuestions,
-  maxPoints,
-  currPoints,
-  currentQuestion,
-}) {
+import { useQuizContext } from "../contexts/QuizContext";
+
+export default function ProgressBar() {
+  const {
+    noQuestions,
+    maxPoints,
+    currentQuestion,
+    points: currPoints,
+  } = useQuizContext();
   return (
     <header className="progress">
       <progress max={noQuestions} value={currentQuestion + 1}></progress>
